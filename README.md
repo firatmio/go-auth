@@ -5,75 +5,75 @@
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)
 ![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
 
-Bu proje, Go (Golang) kullanılarak geliştirilmiş, güvenli, genişletilebilir ve profesyonel bir kimlik doğrulama (Authentication) ve yetkilendirme (Authorization) sistemidir.
+This project is a secure, extensible, and professional authentication and authorization system developed using Go (Golang).
 
-Özellikle Discord gibi platformlarda kullanılan **Bitmask (Bit Düzeyinde)** yetkilendirme yapısını simüle eder. Bu sayede tek bir tamsayı (integer) içinde birden fazla yetki saklanabilir ve yönetilebilir.
+It simulates the **Bitmask** authorization structure used in platforms like Discord. This allows multiple permissions to be stored and managed within a single integer.
 
-## Özellikler
+## Features
 
-*   **JWT (JSON Web Token)** tabanlı kimlik doğrulama.
-*   **Bcrypt** ile güvenli şifre saklama.
-*   **Bitmask Yetkilendirme Sistemi**: Esnek ve performanslı yetki kontrolü.
-*   **Middleware** yapısı ile korumalı rotalar.
-*   **Temiz Mimari**: Models, Handlers, Utils ayrımı.
-*   **Birim Testleri**: Kapsamlı test senaryoları.
+*   **JWT (JSON Web Token)** based authentication.
+*   **Bcrypt** for secure password hashing.
+*   **Bitmask Authorization System**: Flexible and performant permission control.
+*   **Middleware** structure for protected routes.
+*   **Clean Architecture**: Separation of Models, Handlers, and Utils.
+*   **Unit Tests**: Comprehensive test scenarios.
 
-## Kurulum
+## Installation
 
-1.  Projeyi klonlayın veya indirin.
-2.  Gerekli Go modüllerini yükleyin:
+1.  Clone or download the project.
+2.  Install the necessary Go modules:
     ```bash
     go mod tidy
     ```
-3.  Sunucuyu başlatın:
+3.  Start the server:
     ```bash
     go run main.go
     ```
 
-## Yetki Sistemi (Permissions)
+## Permission System
 
-Bu sistemde yetkiler 2'nin kuvvetleri (bitler) olarak tanımlanmıştır. İstediğiniz yetkileri toplayarak kullanıcıya atayabilirsiniz.
+In this system, permissions are defined as powers of 2 (bits). You can assign permissions to a user by summing the desired values.
 
-| Yetki Adı | Değer (Decimal) | Bit Değeri | Açıklama |
+| Permission Name | Value (Decimal) | Bit Value | Description |
 | :--- | :--- | :--- | :--- |
-| `PermRead` | 1 | `0001` | Okuma yetkisi |
-| `PermWrite` | 2 | `0010` | Yazma yetkisi |
-| `PermDelete` | 4 | `0100` | Silme yetkisi |
-| `PermAdmin` | 8 | `1000` | Yönetici yetkisi |
+| `PermRead` | 1 | `0001` | Read permission |
+| `PermWrite` | 2 | `0010` | Write permission |
+| `PermDelete` | 4 | `0100` | Delete permission |
+| `PermAdmin` | 8 | `1000` | Admin permission |
 
-**Örnek Kombinasyonlar:**
-*   **Sadece Okuma**: `1`
-*   **Okuma + Yazma**: `1 + 2 = 3`
-*   **Tam Yetki (Admin)**: `1 + 2 + 4 + 8 = 15`
+**Example Combinations:**
+*   **Read Only**: `1`
+*   **Read + Write**: `1 + 2 = 3`
+*   **Full Access (Admin)**: `1 + 2 + 4 + 8 = 15`
 
-## API Kullanımı
+## API Usage
 
-### 1. Kayıt Ol (Register)
+### 1. Register
 
-Yeni bir kullanıcı oluşturur. `permissions` alanı ile yetkileri belirlenir.
+Creates a new user. Permissions are set using the `permissions` field.
 
 *   **URL**: `/register`
 *   **Method**: `POST`
 *   **Body**:
     ```json
     {
-        "username": "kullanici",
-        "password": "sifre123",
-        "permissions": 3  // (Okuma + Yazma)
+        "username": "user",
+        "password": "password123",
+        "permissions": 3  // (Read + Write)
     }
     ```
 
-### 2. Giriş Yap (Login)
+### 2. Login
 
-Giriş yapar ve JWT token döner.
+Logs in and returns a JWT token.
 
 *   **URL**: `/login`
 *   **Method**: `POST`
 *   **Body**:
     ```json
     {
-        "username": "kullanici",
-        "password": "sifre123"
+        "username": "user",
+        "password": "password123"
     }
     ```
 *   **Response**:
@@ -83,30 +83,30 @@ Giriş yapar ve JWT token döner.
     }
     ```
 
-### 3. Korumalı Rotalara Erişim
+### 3. Accessing Protected Routes
 
-Aşağıdaki rotalara erişmek için `Authorization` header'ında token gönderilmelidir.
+To access the following routes, the token must be sent in the `Authorization` header.
 
 **Header:**
 `Authorization: Bearer <TOKEN>`
 
-| Rota | Method | Gerekli Yetki | Açıklama |
+| Route | Method | Required Permission | Description |
 | :--- | :--- | :--- | :--- |
-| `/home` | GET | - | Giriş yapmış herkes erişebilir. |
-| `/users` | GET | `PermRead (1)` | Tüm kullanıcıları listeler. |
-| `/admin` | GET | `PermAdmin (8)` | Sadece yöneticiler erişebilir. |
+| `/home` | GET | - | Accessible by anyone logged in. |
+| `/users` | GET | `PermRead (1)` | Lists all users. |
+| `/admin` | GET | `PermAdmin (8)` | Accessible only by admins. |
 
-## Test Etme
+## Testing
 
-Projedeki birim testlerini çalıştırmak için:
+To run the unit tests in the project:
 
 ```bash
 go test ./... -v
 ```
 
-## Proje Yapısı
+## Project Structure
 
-*   `main.go`: Sunucu ayarları ve rotalar.
-*   `models/`: Veri yapıları ve veritabanı simülasyonu.
-*   `handlers/`: HTTP isteklerini işleyen fonksiyonlar.
-*   `utils/`: Yardımcı araçlar (JWT vb.).
+*   `main.go`: Server settings and routes.
+*   `models/`: Data structures and database simulation.
+*   `handlers/`: Functions handling HTTP requests.
+*   `utils/`: Helper tools (JWT, etc.).
